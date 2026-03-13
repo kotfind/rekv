@@ -1,6 +1,5 @@
 use core::ops::Range;
 
-use ekv::flash::Flash;
 use heapless::Vec;
 
 use crate::{Entity, Id, IdInner, TableId, TableIdInner, util::VecExt};
@@ -24,7 +23,7 @@ pub mod entity {
         ans.into_array().expect("right size")
     }
 
-    pub(crate) fn from_bytes<E: Entity, F: Flash>(data: [u8; LEN]) -> Option<Id<E>> {
+    pub(crate) fn from_bytes<E: Entity>(data: [u8; LEN]) -> Option<Id<E>> {
         let mut ans = Vec::<u8, LEN>::from_array(data);
 
         let id = IdInner::from_be_bytes(ans.pop_slice());

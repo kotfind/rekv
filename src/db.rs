@@ -1,7 +1,7 @@
 use ekv::{Database, flash::Flash};
 use embassy_sync::blocking_mutex::raw::RawMutex;
 
-use crate::{Rslt, Wtx};
+use crate::{Rslt, Rtx, Wtx};
 
 pub struct Db<F: Flash, M: RawMutex> {
     pub(crate) db: Database<F, M>,
@@ -14,5 +14,9 @@ impl<F: Flash, M: RawMutex> Db<F, M> {
 
     pub async fn wtx<'a>(&'a self) -> Rslt<Wtx<'a, F, M>, F> {
         Wtx::new(self).await
+    }
+
+    pub async fn rtx<'a>(&'a self) -> Rtx<'a, F, M> {
+        Rtx::new(self).await
     }
 }
