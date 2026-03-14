@@ -1,9 +1,7 @@
 use ekv::{WriteTransaction, flash::Flash};
 use embassy_sync::blocking_mutex::raw::RawMutex;
-use heapless::Vec;
-use minicbor_adapters::WriteToHeapless;
 
-use crate::{Db, Entity, Id, IdCounterList, Rslt, key};
+use crate::{Db, Entity, Id, IdCounterList, Rslt, key, util::GVec};
 
 pub struct Wtx<'a, F: Flash + 'a, M: RawMutex + 'a> {
     pub(crate) wtx: WriteTransaction<'a, F, M>,
@@ -27,12 +25,8 @@ impl<'a, F: Flash + 'a, M: RawMutex + 'a> Wtx<'a, F, M> {
     pub async fn write<E: Entity>(&mut self, e: &E) -> Rslt<(), F> {
         let key = key::entity::to_bytes(e.id());
         let val = {
-            // XXX: hardcoded max cbor len
-            const CBOR_MAX_LEN: usize = 1024;
-            assert!(E::CBOR_MAX_LEN <= CBOR_MAX_LEN);
-
-            let mut buf = Vec::<u8, CBOR_MAX_LEN>::new();
-            minicbor::encode(e, WriteToHeapless(&mut buf))?;
+            let mut buf = GVec::<u8, E::CBOR_MAX_LEN>::new();
+            minicbor::encode(e, &mut buf)?;
 
             buf
         };

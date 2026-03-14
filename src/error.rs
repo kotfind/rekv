@@ -1,8 +1,9 @@
 use core::fmt::Debug;
 
 use ekv::flash::Flash;
-use heapless::CapacityError;
 use thiserror::Error;
+
+use crate::util::CapacityError;
 
 pub(crate) type Rslt<T, F> = Result<T, Error<F>>;
 

@@ -1,8 +1,10 @@
 use core::ops::Range;
 
-use heapless::Vec;
+use crate::util::GenericArrayExt;
+use generic_array::GenericArray;
+use typenum::U0;
 
-use crate::{Entity, Id, IdInner, TableId, TableIdInner, util::VecExt};
+use crate::{Entity, Id, IdInner, TableId, TableIdInner};
 
 // -------------------- Entity --------------------
 
@@ -14,23 +16,28 @@ pub mod entity {
     pub const LEN: usize = 4;
 
     pub fn to_bytes<E: Entity>(id: Id<E>) -> [u8; LEN] {
-        let mut ans = Vec::<u8, LEN>::new();
+        let buf = GenericArray::<u8, U0>::default();
 
-        ans.extend(TYPE_VALUE.to_be_bytes());
-        ans.extend(E::TABLE_ID.to_inner().to_be_bytes());
-        ans.extend(id.to_inner().to_be_bytes());
+        let buf = buf.join_arr(&TYPE_VALUE.to_be_bytes());
+        let buf = buf.join_arr(&E::TABLE_ID.to_inner().to_be_bytes());
+        let buf = buf.join_arr(&id.to_inner().to_be_bytes());
 
-        ans.into_array().expect("right size")
+        buf.into_array()
     }
 
     pub(crate) fn from_bytes<E: Entity>(data: [u8; LEN]) -> Option<Id<E>> {
-        let mut ans = Vec::<u8, LEN>::from_array(data);
+        let buf = GenericArray::from_array(data);
 
-        let id = IdInner::from_be_bytes(ans.pop_slice());
-        let table_id = TableIdInner::from_be_bytes(ans.pop_slice());
-        let type_value = TypeValue::from_be_bytes(ans.pop_slice());
+        let (buf, arr) = buf.split_arr();
+        let id = IdInner::from_be_bytes(arr);
 
-        ans.assert_empty();
+        let (buf, arr) = buf.split_arr();
+        let table_id = TableIdInner::from_be_bytes(arr);
+
+        let (buf, arr) = buf.split_arr();
+        let type_value = TypeValue::from_be_bytes(arr);
+
+        buf.assert_empty();
 
         (table_id == E::TABLE_ID.to_inner() && type_value == TYPE_VALUE).then_some(Id::new(id))
     }
@@ -39,6 +46,7 @@ pub mod entity {
 // -------------------- Id Counter --------------------
 
 pub mod id_counter {
+
     use super::*;
 
     pub const TYPE_VALUE: TypeValue = 0x01;
@@ -46,21 +54,24 @@ pub mod id_counter {
     pub const LEN: usize = 2;
 
     pub fn to_bytes(table_id: TableId) -> [u8; LEN] {
-        let mut ans = Vec::<u8, LEN>::new();
+        let buf = GenericArray::<u8, U0>::default();
 
-        ans.extend(TYPE_VALUE.to_be_bytes());
-        ans.extend(table_id.to_inner().to_be_bytes());
+        let buf = buf.join_arr(&TYPE_VALUE.to_be_bytes());
+        let buf = buf.join_arr(&table_id.to_inner().to_be_bytes());
 
-        ans.into_array().expect("right size")
+        buf.into_array()
     }
 
     pub fn from_bytes(data: [u8; LEN]) -> Option<TableId> {
-        let mut ans = Vec::<u8, LEN>::from_array(data);
+        let buf = GenericArray::from_array(data);
 
-        let table_id = TableIdInner::from_be_bytes(ans.pop_slice());
-        let type_value = TypeValue::from_be_bytes(ans.pop_slice());
+        let (buf, arr) = buf.split_arr();
+        let table_id = TableIdInner::from_be_bytes(arr);
 
-        ans.assert_empty();
+        let (buf, arr) = buf.split_arr();
+        let type_value = TypeValue::from_be_bytes(arr);
+
+        buf.assert_empty();
 
         (type_value == TYPE_VALUE).then_some(TableId::new(table_id))
     }
