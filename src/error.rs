@@ -18,6 +18,9 @@ pub enum Error<F: Flash> {
     #[error("ekv write error")]
     EkvWrite(#[from] ekv::WriteError<F::Error>),
 
+    #[error("ekv read error")]
+    EkvRead(#[from] ekv::ReadError<F::Error>),
+
     #[error("ekv batch read error")]
     EkvBatchRead(#[from] ekv::Error<F::Error>),
 
@@ -29,6 +32,9 @@ pub enum Error<F: Flash> {
 
     #[error("failed to encode as cbor")]
     CborEncode(#[from] minicbor::encode::Error<CapacityError>),
+
+    #[error("failed to decode from cbor")]
+    CborDecode(#[from] minicbor::decode::Error),
 
     #[error("maximum id value reached for {entity_name}")]
     OutOfIds { entity_name: &'static str },
@@ -43,10 +49,12 @@ impl<F: Flash> Debug for Error<F> {
             Self::EkvMount(e) => f.debug_tuple("EkvMount").field(e).finish(),
             Self::EkvFormat(e) => f.debug_tuple("EkvFormat").field(e).finish(),
             Self::EkvWrite(e) => f.debug_tuple("EkvWrite").field(e).finish(),
+            Self::EkvRead(e) => f.debug_tuple("EkvRead").field(e).finish(),
             Self::EkvBatchRead(e) => f.debug_tuple("EkvBatchRead").field(e).finish(),
             Self::EkvCursorError(e) => f.debug_tuple("EkvCursorError").field(e).finish(),
             Self::EkvCommit(e) => f.debug_tuple("EkvCommit").field(e).finish(),
             Self::CborEncode(e) => f.debug_tuple("CborEncode").field(e).finish(),
+            Self::CborDecode(e) => f.debug_tuple("CborDecode").field(e).finish(),
             Self::OutOfIds { entity_name } => f
                 .debug_struct("OutOfIds")
                 .field("entity_name", entity_name)

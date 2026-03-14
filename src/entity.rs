@@ -3,7 +3,12 @@ use minicbor::{Decode, Encode};
 
 use crate::{Id, TableId};
 
-pub trait Entity: Sized + Encode<()> + Decode<'static, ()> {
+pub trait Entity
+where
+    Self: Sized,
+    Self: Encode<()>,
+    Self: for<'a> Decode<'a, ()>,
+{
     #[allow(non_camel_case_types)]
     type CBOR_MAX_LEN: ArrayLength;
 

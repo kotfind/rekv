@@ -24,11 +24,11 @@ impl TableId {
         Self(id)
     }
 
-    pub(crate) fn to_usize(self) -> usize {
+    pub(crate) const fn to_usize(self) -> usize {
         self.0 as usize
     }
 
-    pub(crate) fn to_inner(self) -> TableIdInner {
+    pub(crate) const fn to_inner(self) -> TableIdInner {
         self.0
     }
 }
@@ -71,8 +71,20 @@ impl<E: Entity, C> Encode<C> for Id<E> {
     }
 }
 
+impl<E: Entity> PartialEq for Id<E> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl<E: Entity> Eq for Id<E> {}
+
 impl<E: Entity> Id<E> {
-    pub(crate) const fn new(id: u16) -> Self {
+    pub const fn new_unsafe(id: IdInner) -> Self {
+        Self::new(id)
+    }
+
+    pub(crate) const fn new(id: IdInner) -> Self {
         Self(id, PhantomData)
     }
 
@@ -115,7 +127,7 @@ impl IdCounterList {
         let mut cursor = rtx.read_range(key::id_counter::full_range()).await?;
 
         loop {
-            let mut key_buf = [0u8; key::id_counter::LEN];
+            let mut key_buf = [0u8; key::id_counter::CBOR_LEN];
             let mut val_buf = [0u8; mem::size_of::<IdInner>()];
 
             let Some((key_n, val_n)) = cursor.next(&mut key_buf, &mut val_buf).await? else {

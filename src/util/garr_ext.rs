@@ -7,7 +7,7 @@ use core::{
 use generic_array::{ArrayLength, GenericArray};
 use typenum::{Const, Diff, Same, Sum, ToUInt, U};
 
-pub(crate) trait GenericArrayExt<T, N: ArrayLength> {
+pub(crate) trait GArrExt<T, N: ArrayLength> {
     #[must_use]
     fn join_arr<const M: usize>(&self, arr: &[T; M]) -> GenericArray<T, Sum<N, U<M>>>
     where
@@ -31,7 +31,7 @@ pub(crate) trait GenericArrayExt<T, N: ArrayLength> {
     }
 }
 
-impl<T, N: ArrayLength> GenericArrayExt<T, N> for GenericArray<T, N> {
+impl<T, N: ArrayLength> GArrExt<T, N> for GenericArray<T, N> {
     fn join_arr<const M: usize>(&self, arr: &[T; M]) -> GenericArray<T, Sum<N, U<M>>>
     where
         T: Clone,

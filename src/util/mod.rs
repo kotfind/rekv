@@ -1,5 +1,7 @@
-pub(crate) use generic_array_ext::*;
+pub(crate) use garr_ext::*;
 pub(crate) use gvec::*;
+pub(crate) use other::*;
 
-mod generic_array_ext;
+mod garr_ext;
 mod gvec;
+mod other;

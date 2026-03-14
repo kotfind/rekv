@@ -23,13 +23,30 @@ impl<T, CAP: ArrayLength> GVec<T, CAP> {
         Self::default()
     }
 
+    pub fn from_garr<CAP_>(buf: &GenericArray<T, CAP_>, len: usize) -> Self
+    where
+        T: Clone,
+        CAP_: ArrayLength,
+    {
+        let mut this = Self::new();
+        this.extend(&buf[..len]);
+        this
+    }
+
+    pub fn extend(&mut self, arr: impl AsRef<[T]>)
+    where
+        T: Clone,
+    {
+        self.try_extend(arr).expect("failed to extend")
+    }
+
     pub fn try_extend(&mut self, arr: impl AsRef<[T]>) -> Result<(), CapacityError>
     where
         T: Clone,
     {
         let arr = arr.as_ref();
 
-        if self.len + arr.len() >= CAP::USIZE {
+        if self.len + arr.len() > CAP::USIZE {
             return Err(CapacityError);
         }
 

@@ -1,4 +1,8 @@
+use crate::util::array_max;
+
 pub mod entity;
 pub mod id_counter;
 
-pub(crate) type TypeValue = u8;
+type TypeValue = u8;
+
+pub(crate) const MAX_CBOR_LEN: usize = array_max([entity::CBOR_LEN, id_counter::CBOR_LEN]);

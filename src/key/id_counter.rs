@@ -3,13 +3,13 @@ use core::ops::Range;
 use generic_array::GenericArray;
 use typenum::U0;
 
-use crate::{TableId, TableIdInner, key::TypeValue, util::GenericArrayExt};
+use crate::{TableId, TableIdInner, key::TypeValue, util::GArrExt};
 
 pub const TYPE_VALUE: TypeValue = 0x01;
 
-pub const LEN: usize = 2;
+pub const CBOR_LEN: usize = 2;
 
-pub fn to_bytes(table_id: TableId) -> [u8; LEN] {
+pub fn to_bytes(table_id: TableId) -> [u8; CBOR_LEN] {
     let buf = GenericArray::<u8, U0>::default();
 
     let buf = buf.join_arr(&TYPE_VALUE.to_be_bytes());
@@ -18,7 +18,7 @@ pub fn to_bytes(table_id: TableId) -> [u8; LEN] {
     buf.into_array()
 }
 
-pub fn from_bytes(data: [u8; LEN]) -> Option<TableId> {
+pub fn from_bytes(data: [u8; CBOR_LEN]) -> Option<TableId> {
     let buf = GenericArray::from_array(data);
 
     let (buf, arr) = buf.split_arr();
