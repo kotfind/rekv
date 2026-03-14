@@ -58,28 +58,6 @@ impl<T, CAP: ArrayLength> GVec<T, CAP> {
         Ok(())
     }
 
-    pub fn push(&mut self, item: T) {
-        assert!(!self.is_full(), "GVec is full");
-
-        self.data[self.len].write(item);
-        self.len += 1;
-    }
-
-    pub fn pop(&mut self) -> T {
-        assert!(!self.is_full(), "GVec is empty");
-
-        self.len -= 1;
-        unsafe { self.data[self.len].assume_init_read() }
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.len == 0
-    }
-
-    pub fn is_full(&self) -> bool {
-        self.len == CAP::USIZE
-    }
-
     pub fn len(&self) -> usize {
         self.len
     }

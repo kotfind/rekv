@@ -69,12 +69,12 @@ impl<'a, F: Flash + 'a, M: RawMutex + 'a, E: Entity> Batch<'a, F, M, E> {
     }
 
     pub async fn next(&mut self) -> Rslt<Option<E>, F> {
-        let mut key_buf = GenericArray::<u8, U<{ key::MAX_CBOR_LEN }>>::default();
+        let mut key_buf = GenericArray::<u8, U<{ key::CBOR_MAX_LEN }>>::default();
         let mut val_buf = GenericArray::<u8, E::CBOR_MAX_LEN>::default();
 
         let (key, val) = match self.cursor.next(&mut key_buf, &mut val_buf).await {
             Ok(Some((key_len, val_len))) => (
-                GVec::<u8, U<{ key::MAX_CBOR_LEN }>>::from_garr(&key_buf, key_len),
+                GVec::<u8, U<{ key::CBOR_MAX_LEN }>>::from_garr(&key_buf, key_len),
                 GVec::<u8, E::CBOR_MAX_LEN>::from_garr(&val_buf, val_len),
             ),
             Ok(None) => return Ok(None),
