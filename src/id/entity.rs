@@ -57,7 +57,7 @@ impl<E: Entity> Id<E> {
         Self(id, PhantomData)
     }
 
-    pub(crate) fn to_inner(self) -> IdInner {
+    pub fn to_inner(self) -> IdInner {
         self.0
     }
 }
