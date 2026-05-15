@@ -36,6 +36,14 @@ impl<'a, F: Flash + 'a, M: RawMutex + 'a> Wtx<'a, F, M> {
         Ok(())
     }
 
+    pub async fn remove<E: Entity>(&mut self, id: Id<E>) -> Rslt<(), F> {
+        let key = key::entity::to_bytes(id);
+
+        self.wtx.delete(&key).await?;
+
+        Ok(())
+    }
+
     pub async fn commit(mut self) -> Rslt<(), F> {
         self.id_counters.write(&mut self.wtx).await?;
         self.wtx.commit().await?;
